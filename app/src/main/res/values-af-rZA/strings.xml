@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">Colligo</string>
+    <string name="get_started">Begin Nou</string>
+    <string name="navigate_connect_thrive">Navigeer · Verbind · Groesis</string>
+    <string name="white_app_logo">white app logo</string>
+    <string name="maroon_app_name">maroon app name</string>
+    <string name="login">Meld Aan</string>
+    <string name="continue_with_google">Gaan aan met Googlee</string>
+    <string name="don_t_have_an_account_register">Het jy nie \'n rekening nie? Registreer</string>
+    <string name="password">Wagwoord</string>
+    <string name="email">E-pos</string>
+    <string name="welcome_back">Welkom Terug</string>
+    <string name="app_logo">App Logo</string>
+    <string name="already_have_an_account_login">Het jy reeds \'n rekening? Meld aan</string>
+    <string name="university">Universiteit</string>
+    <string name="default_web_client_id">1009352501623-gku59r3l2lf6ols5d5mohsbaasf046m4.apps.googleusercontent.com</string>
+    <string name="settings_icon_desc" />
+    <string name="search_icon_desc" />
+    <string name="campus_banner_text" />
+    <string name="student_nav_title" >Student Navigasie</string>
+    <string name="planner_card_title" >Rooster</string>
+    <string name="lost_found_card_title" >Gevind en Verlore</string>
+    <string name="carpool_card_title" >Karpoel</string>
+    <string name="map_card_title" >Kampus Kaart</string>
+    <string name="schedule_month" >Maand</string>
+    <string name="schedule_day" >Dag</string>
+    <string name="schedule_date" >Datum</string>
+    <string name="home_icon_desc" />
+    <string name="location_icon_desc" />
+    <string name="carpool_icon_desc" />
+    <string name="calendar_icon_desc" />
+    <string name="lost_found_icon_desc" />
+    <string name="hi_wadiha_boat">Hi! Wadiha Boat</string>
+    <string name="campus_image">Campus Image</string>
+    <string name="planner_image">Planner Image</string>
+    <string name="lost_found_image" />
+    <string name="carpool_image" />
+    <string name="map_image" />
+    <string name="creative_thinking_critical_thinking_newworldthinking">Creative Thinking. Critical Thinking. #NewWorldThinking.</string>
+    <string name="back" />
+    <string name="notifications_enabled">Kennisgewings Aangeskakel</string>
+    <string name="notifications_disabled">Kennisgewings Afgeskakel</string>
+    <string name="notifications_failed">Kon nie kennisgewings verander nie.</string>
+    <string name="contact_support">Kontak Ondersteuning</string>
+    <string name="help_title">Hulp en Ondersteuning</string>
+
+
+</resources>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottomNav"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:background="@drawable/bottom_nav_bg"
+    android:weightSum="5"
+    android:padding="8dp"
+    android:elevation="6dp"
+    android:translationZ="6dp"
+    android:fitsSystemWindows="true">
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/iconHome"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/nav_item_selected_bg"
+            android:padding="10dp"
+            android:src="@drawable/ic_home"
+            app:tint="@color/white"
+            android:contentDescription="@string/home_icon_desc"
+            android:onClick="goToHome" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/iconLocation"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_location"
+            app:tint="@color/black"
+            android:contentDescription="@string/location_icon_desc" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/iconCarpool"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_car"
+            app:tint="@color/black"
+            android:contentDescription="@string/carpool_icon_desc" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/iconCalendar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_calender"
+            app:tint="@color/black"
+            android:contentDescription="@string/calendar_icon_desc" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/iconLostFound"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_lostfound"
+            app:tint="@color/black"
+            android:contentDescription="@string/lost_found_icon_desc" />
+    </FrameLayout>
+</LinearLayout>

@@ -14,6 +14,35 @@
     <string name="already_have_an_account_login">Already have an account? Login</string>
     <string name="university">University</string>
     <string name="default_web_client_id">1009352501623-gku59r3l2lf6ols5d5mohsbaasf046m4.apps.googleusercontent.com</string>
+    <string name="settings_icon_desc" />
+    <string name="search_icon_desc" />
+    <string name="campus_banner_text" />
+    <string name="student_nav_title" />
+    <string name="planner_card_title" />
+    <string name="lost_found_card_title" />
+    <string name="carpool_card_title" />
+    <string name="map_card_title" />
+    <string name="schedule_month" />
+    <string name="schedule_day" />
+    <string name="schedule_date" />
+    <string name="home_icon_desc" />
+    <string name="location_icon_desc" />
+    <string name="carpool_icon_desc" />
+    <string name="calendar_icon_desc" />
+    <string name="lost_found_icon_desc" />
+    <string name="hi_wadiha_boat">Hi! Wadiha Boat</string>
+    <string name="campus_image">Campus Image</string>
+    <string name="planner_image">Planner Image</string>
+    <string name="lost_found_image" />
+    <string name="carpool_image" />
+    <string name="map_image" />
+    <string name="creative_thinking_critical_thinking_newworldthinking">Creative Thinking. Critical Thinking. #NewWorldThinking.</string>
+    <string name="back" />
+    <string name="notifications_enabled">Notifications Enabled</string>
+    <string name="notifications_disabled">Notifications Disabled</string>
+    <string name="notifications_failed">Could not change notifications</string>
+    <string name="contact_support">Contact Support</string>
+    <string name="help_title">Help and Support</string>
 
 
 </resources>

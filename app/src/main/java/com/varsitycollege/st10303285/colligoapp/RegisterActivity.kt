@@ -8,7 +8,6 @@ import android.content.Intent
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import com.varsitycollege.st10303285.colligoapp.R
 
 // Registration activity for new users
 class RegisterActivity : AppCompatActivity() {
@@ -66,7 +65,7 @@ class RegisterActivity : AppCompatActivity() {
                     db.collection("users").document(uid).set(userDoc)
                         .addOnSuccessListener {
                             Toast.makeText(this, "Account created", Toast.LENGTH_SHORT).show()
-                            startActivity(Intent(this, MainActivity::class.java))
+                            startActivity(Intent(this, HomeActivity::class.java))
                             finish()
                         }
                         .addOnFailureListener { e ->

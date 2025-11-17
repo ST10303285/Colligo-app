@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import android.widget.Button
-import com.varsitycollege.st10303285.colligoapp.R
 
 class SplashActivity : AppCompatActivity() {
     // simple splash that checks if user is already signed in
@@ -28,7 +27,7 @@ class SplashActivity : AppCompatActivity() {
         val user = Firebase.auth.currentUser
         if (user != null) {
             // user signed in -> go to main screen
-            startActivity(Intent(this, MainActivity::class.java))
+            startActivity(Intent(this, HomeActivity::class.java))
         } else {
             // not signed in -> go to login
             startActivity(Intent(this, LoginActivity::class.java))
