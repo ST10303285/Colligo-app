@@ -43,6 +43,7 @@
     <string name="notifications_failed">Could not change notifications</string>
     <string name="contact_support">Contact Support</string>
     <string name="help_title">Help and Support</string>
+    <string name="add_lecture_button" />
 
 
 </resources>

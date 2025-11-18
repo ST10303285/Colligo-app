@@ -82,6 +82,21 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.android.material:material:1.13.0")
 
+    //room
+    implementation("androidx.room:room-runtime:2.5.2")
+    kapt("androidx.room:room-compiler:2.5.2")
+    implementation("androidx.room:room-ktx:2.5.2")
+
+    //lifecycle
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
+
+    //workmanager
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+
+
+
+
     implementation("com.google.android.gms:play-services-auth:21.2.0") // Google Sign-In
     implementation("androidx.biometric:biometric:1.1.0") //biometric auth
 

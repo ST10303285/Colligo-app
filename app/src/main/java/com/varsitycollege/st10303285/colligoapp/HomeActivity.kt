@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -13,8 +12,15 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
+import com.google.firebase.firestore.SetOptions
+import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class HomeActivity : AppCompatActivity() {
 
@@ -78,7 +84,7 @@ class HomeActivity : AppCompatActivity() {
         }
 
         carpoolCard.setOnClickListener {
-            startActivity(Intent(this, CarpoolActivity::class.java))
+            startActivity(Intent(this, RidesDashboardActivity::class.java))
         }
 
         mapCard.setOnClickListener {
@@ -91,8 +97,58 @@ class HomeActivity : AppCompatActivity() {
         setupRealtimeScheduleListener()
         setupNavBarAndInsets()
         setupNavClicks()
+        ensureUserDocExists()
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                android.util.Log.e("FCM-DEBUG", "Fetching FCM token failed", task.exception)
+                return@addOnCompleteListener
+            }
+            val token = task.result
+            android.util.Log.d("FCM-DEBUG", "FORCED token: $token")
+
+            // Register with backend immediately (uses ApiRepository)
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val repo = com.varsitycollege.st10303285.colligoapp.repository.ApiRepository()
+                    val resp = repo.registerFcmToken(token)
+                    android.util.Log.d("FCM-DEBUG", "registerFcmToken response: ${resp?.code() ?: resp}")
+                } catch (e: Exception) {
+                    android.util.Log.e("FCM-DEBUG", "registerFcmToken failed", e)
+                }
+            }
+        }
+
     }
 
+
+    fun ensureUserDocExists() {
+        val user = Firebase.auth.currentUser ?: return
+        val uid = user.uid
+        val db = FirebaseFirestore.getInstance()
+        val ref = db.collection("users").document(uid)
+
+        // read once; if missing create minimal doc
+        ref.get().addOnSuccessListener { snap ->
+            if (!snap.exists()) {
+                // build a minimal profile from available info
+                val doc = hashMapOf<String, Any?>(
+                    "createdAt" to com.google.firebase.Timestamp.now(),
+                    "email" to (user.email ?: ""),
+                    "fullName" to (user.displayName ?: ""),
+                    "photoUrl" to (user.photoUrl?.toString() ?: "")
+                )
+                // set with merge in case other fields exist
+                ref.set(doc, SetOptions.merge())
+                    .addOnSuccessListener { android.util.Log.d("USER-INIT", "User doc created for $uid") }
+                    .addOnFailureListener { e -> android.util.Log.e("USER-INIT", "Failed to create user doc", e) }
+            } else {
+                android.util.Log.d("USER-INIT", "User doc exists for $uid")
+            }
+        }.addOnFailureListener { e ->
+            android.util.Log.e("USER-INIT", "Error reading user doc", e)
+        }
+    }
     fun goToHome(view: View) {
 
         val scroll = findViewById<View?>(R.id.scrollContent)
@@ -189,7 +245,7 @@ class HomeActivity : AppCompatActivity() {
 
         iconCarpool?.setOnClickListener {
             // launch CarpoolActivity
-            startActivity(Intent(this, CarpoolActivity::class.java))
+            startActivity(Intent(this, RidesDashboardActivity::class.java))
         }
 
         iconCalendar?.setOnClickListener {

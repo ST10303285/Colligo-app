@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    private const val BASE_URL = "https://api-hkjlyqfi7q-uc.a.run.app" //backend URL
+    private const val BASE_URL = "https://api-hkjlyqfi7q-uc.a.run.app/" //backend URL
 
 
     // OkHttp client with interceptor to add auth token
