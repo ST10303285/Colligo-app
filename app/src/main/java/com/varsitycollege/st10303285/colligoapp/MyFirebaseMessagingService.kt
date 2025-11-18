@@ -41,7 +41,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val title = message.notification?.title ?: message.data["title"] ?: "Colligo"
         val body = message.notification?.body ?: message.data["body"] ?: "You have a new event"
 
-        // 👇 Decide where to go when tapping the notification
+        // where to go when tapping the notification
         val targetIntent = if (message.data["rideId"] != null) {
             // New ride request → go to DriverRequestsActivity
             Intent(this, DriverRequestsActivity::class.java).apply {
