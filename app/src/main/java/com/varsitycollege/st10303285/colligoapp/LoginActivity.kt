@@ -2,49 +2,44 @@ package com.varsitycollege.st10303285.colligoapp
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import java.util.concurrent.Executor
+
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
-    private lateinit var etEmail: EditText
-    private lateinit var etPassword: EditText
-    private lateinit var btnLogin: Button
-    private lateinit var tvRegister: TextView
-    private lateinit var btnGoogleSignIn: Button
-
     private lateinit var googleClient: GoogleSignInClient
-    private val googleSignInLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val intent = result.data
+
+    private lateinit var etEmail: TextInputEditText
+    private lateinit var etPassword: TextInputEditText
+    private lateinit var btnLogin: MaterialButton
+    private lateinit var btnGoogleSignIn: MaterialButton
+    private lateinit var btnBiometricLogin: MaterialButton
+
+    private lateinit var biometricPrompt: BiometricPrompt
+    private lateinit var executor: java.util.concurrent.Executor
+
+    private val googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
         try {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(intent)
-            val acct = task.getResult(ApiException::class.java)
-            val idToken = acct?.idToken
-            if (idToken != null) {
-                firebaseAuthWithGoogle(idToken)
-            } else {
-                Toast.makeText(this, "Google sign-in failed (no token)", Toast.LENGTH_SHORT).show()
-            }
-        } catch (e: ApiException) {
-            Toast.makeText(this, "Google sign-in error: ${e.statusCode}", Toast.LENGTH_LONG).show()
-            Log.w("LoginActivity", "Google sign in failed", e)
+            val account = task.getResult(ApiException::class.java)
+            firebaseAuthWithGoogle(account.idToken!!)
+        } catch (e: Exception) {
+            // User canceled or error
         }
     }
 
@@ -54,106 +49,145 @@ class LoginActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
+        // If already signed in → go home
+        if (auth.currentUser != null) {
+            goToHome()
+            return
+        }
+
+        initViews()
+        setupGoogleSignIn()
+        setupBiometric()
+        updateBiometricButtonState()
+
+        btnLogin.setOnClickListener { performEmailLogin() }
+        btnGoogleSignIn.setOnClickListener { launchGoogleSignIn() }
+        btnBiometricLogin.setOnClickListener { showBiometricPrompt() }
+
+        findViewById<android.widget.TextView>(R.id.registerRedirect)?.setOnClickListener {
+            startActivity(Intent(this, RegisterActivity::class.java))
+            finish()
+        }
+    }
+
+    private fun initViews() {
         etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.passwordEditText)
         btnLogin = findViewById(R.id.btnLogin)
-        tvRegister = findViewById(R.id.registerRedirect) // TextView in layout
         btnGoogleSignIn = findViewById(R.id.btnGoogleSignIn)
+        btnBiometricLogin = findViewById(R.id.btnBiometricLogin)
+    }
 
-        btnLogin.setOnClickListener { doLogin() }
-        tvRegister.setOnClickListener {
-            startActivity(Intent(this, RegisterActivity::class.java))
-        }
-
-        // Google Sign-in setup
+    private fun setupGoogleSignIn() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
         googleClient = GoogleSignIn.getClient(this, gso)
-        btnGoogleSignIn.setOnClickListener {
-            googleSignInLauncher.launch(googleClient.signInIntent)
-        }
-
-        // If user already logged in, try biometric quick unlock
-        if (auth.currentUser != null) {
-            tryShowBiometricPrompt()
-        }
     }
 
-    private fun doLogin() {
-        val email = etEmail.text.toString().trim()
-        val pass = etPassword.text.toString()
-
-        if (email.isEmpty() || pass.length < 6) {
-            Toast.makeText(this, "Enter a valid email and password (min 6 chars)", Toast.LENGTH_SHORT).show()
-            return
+    private fun launchGoogleSignIn() {
+        googleClient.signOut().addOnCompleteListener {
+            googleSignInLauncher.launch(googleClient.signInIntent)
         }
-
-        auth.signInWithEmailAndPassword(email, pass)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    startActivity(Intent(this, HomeActivity::class.java))
-                    finish()
-                } else {
-                    Toast.makeText(this, "Login failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                }
-            }
     }
 
     private fun firebaseAuthWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    startActivity(Intent(this, HomeActivity::class.java))
-                    finish()
-                } else {
-                    Toast.makeText(this, "Firebase auth with Google failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                }
+            .addOnSuccessListener {
+                markUserHasLoggedInOnce()
+                goToHome()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Google login failed", Toast.LENGTH_LONG).show()
             }
     }
 
-    // ---- Biometric helpers using androidx.biometric ----
+    private fun performEmailLogin() {
+        val email = etEmail.text.toString().trim()
+        val password = etPassword.text.toString()
 
-    private fun tryShowBiometricPrompt() {
-        val biometricManager = BiometricManager.from(this)
-        when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK)) {
-            BiometricManager.BIOMETRIC_SUCCESS -> showBiometricPrompt()
-            else -> {
-                // device doesn't support biometrics or none enrolled
-            }
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Fill all fields", Toast.LENGTH_SHORT).show()
+            return
         }
+
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnSuccessListener {
+                markUserHasLoggedInOnce()
+                goToHome()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Login failed: ${it.message}", Toast.LENGTH_LONG).show()
+            }
     }
 
-    private fun showBiometricPrompt() {
-        val executor: Executor = ContextCompat.getMainExecutor(this)
-
-        // Build the prompt info using the androidx.biometric class
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Unlock Colligo")
-            .setSubtitle("Use your fingerprint or device credential")
-            .setNegativeButtonText("Use password")
-            .build()
-
-        val biometricPrompt = BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
+    private fun setupBiometric() {
+        executor = ContextCompat.getMainExecutor(this)
+        biometricPrompt = BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 super.onAuthenticationSucceeded(result)
-                // biometric success -> go to main
-                startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
-                finish()
-            }
-
-            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                super.onAuthenticationError(errorCode, errString)
-                // optional: show toast or log
+                Toast.makeText(this@LoginActivity, "Welcome back!", Toast.LENGTH_SHORT).show()
+                goToHome()
             }
 
             override fun onAuthenticationFailed() {
                 super.onAuthenticationFailed()
+                Toast.makeText(this@LoginActivity, "Not recognized", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                super.onAuthenticationError(errorCode, errString)
+                if (errorCode != BiometricPrompt.ERROR_USER_CANCELED && errorCode != BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
+                    Toast.makeText(this@LoginActivity, "Biometric error: $errString", Toast.LENGTH_SHORT).show()
+                }
             }
         })
+    }
+
+    private fun updateBiometricButtonState() {
+        val hasLoggedInOnce = getSharedPreferences("colligo_prefs", MODE_PRIVATE)
+            .getBoolean("has_logged_in_once", false)
+
+        val canUseBiometric = BiometricManager.from(this)
+            .canAuthenticate(BIOMETRIC_STRONG or BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_SUCCESS
+
+        val shouldEnable = hasLoggedInOnce && canUseBiometric
+
+        btnBiometricLogin.isEnabled = shouldEnable
+        btnBiometricLogin.alpha = if (shouldEnable) 1.0f else 0.6f
+        btnBiometricLogin.text = if (shouldEnable)
+            "Login with Fingerprint / Face"
+        else
+            "Log in once to enable biometric"
+        btnBiometricLogin.setIconResource(if (shouldEnable) R.drawable.ic_fingerprint else 0)
+    }
+
+    private fun showBiometricPrompt() {
+        if (!btnBiometricLogin.isEnabled) {
+            Toast.makeText(this, "Please log in once with email or Google first", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Quick Login")
+            .setSubtitle("Use fingerprint or face")
+            .setNegativeButtonText("Cancel")
+            .build()
 
         biometricPrompt.authenticate(promptInfo)
+    }
+
+    private fun markUserHasLoggedInOnce() {
+        getSharedPreferences("colligo_prefs", MODE_PRIVATE)
+            .edit()
+            .putBoolean("has_logged_in_once", true)
+            .apply()
+    }
+
+    private fun goToHome() {
+        startActivity(Intent(this, HomeActivity::class.java))
+        finish()
     }
 }

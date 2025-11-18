@@ -9,10 +9,12 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.Firebase
@@ -27,18 +29,17 @@ import kotlinx.coroutines.launch
 
 class HomeActivity : AppCompatActivity() {
 
-    private lateinit var plannerCard: LinearLayout
-    private lateinit var lostFoundCard: LinearLayout
-    private lateinit var carpoolCard: LinearLayout
-    private lateinit var mapCard: LinearLayout
+    // Feature cards (MaterialCardView but same IDs)
+    private lateinit var plannerCard: View
+    private lateinit var lostFoundCard: View
+    private lateinit var carpoolCard: View
+    private lateinit var mapCard: View
 
+    // Schedule
     private lateinit var lectureRecycler: RecyclerView
-    private val lecturesAdapter = LectureAdapter()
+    private val lectureAdapter = LectureAdapter()
 
-    // Firestore
-    private val firestore = FirebaseFirestore.getInstance()
-
-    // nav views (nullable until found)
+    // Bottom navigation (from your included nav_bar.xml)
     private var navBar: LinearLayout? = null
     private var iconHome: ImageView? = null
     private var iconLocation: ImageView? = null
@@ -46,260 +47,230 @@ class HomeActivity : AppCompatActivity() {
     private var iconCalendar: ImageView? = null
     private var iconLostFound: ImageView? = null
 
+    private val firestore = FirebaseFirestore.getInstance()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-
-        val nav = findViewById<LinearLayout>(R.id.bottomNav)
-        nav?.bringToFront()
-        nav?.invalidate()
-
+        // Bring bottom nav to front
+        findViewById<LinearLayout>(R.id.bottomNav)?.apply {
+            bringToFront()
+            invalidate()
+        }
 
         // Enable offline persistence
-        val settings = FirebaseFirestoreSettings.Builder()
+        firestore.firestoreSettings = FirebaseFirestoreSettings.Builder()
             .setPersistenceEnabled(true)
             .build()
-        firestore.firestoreSettings = settings
 
-        // view binding for cards
+        initializeViews()
+        updateGreetingWithUserName()
+        setupFeatureCardClicks()
+        setupSchedule()
+        setupBottomNavigation()
+        ensureUserDocumentExists()
+        registerFcmToken()
+        requestNotificationPermission()
+    }
+
+    private fun initializeViews() {
+        // Cards
         plannerCard = findViewById(R.id.plannerCard)
         lostFoundCard = findViewById(R.id.lostFoundCard)
         carpoolCard = findViewById(R.id.carpoolCard)
         mapCard = findViewById(R.id.mapCard)
-        val btnSettings = findViewById<ImageView>(R.id.btnSettings)
-        btnSettings.setOnClickListener {
+
+        // RecyclerView
+        lectureRecycler = findViewById(R.id.lectureRecycler)
+        lectureRecycler.layoutManager = LinearLayoutManager(this)
+        lectureRecycler.adapter = lectureAdapter
+
+        // Top bar buttons
+        findViewById<ImageView>(R.id.btnSettings).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
 
-        // Recycler
-        lectureRecycler = findViewById(R.id.lectureRecycler)
-        lectureRecycler.layoutManager = LinearLayoutManager(this)
-        lectureRecycler.adapter = lecturesAdapter
-
-        // click listeners - adjust Target activities
-        plannerCard.setOnClickListener {
-            startActivity(Intent(this, PlannerActivity::class.java))
+        findViewById<ImageView>(R.id.btnSearch)?.setOnClickListener {
+            Toast.makeText(this, "Search coming soon", Toast.LENGTH_SHORT).show()
         }
+    }
 
-        lostFoundCard.setOnClickListener {
-            startActivity(Intent(this, LostFoundActivity::class.java))
-        }
+    private fun updateGreetingWithUserName() {
+        val user = Firebase.auth.currentUser
+        val greetingView = findViewById<TextView>(R.id.tvGreeting)
 
-        carpoolCard.setOnClickListener {
-            startActivity(Intent(this, RidesDashboardActivity::class.java))
-        }
-
-        mapCard.setOnClickListener {
-            startActivity(Intent(this, CampusMapActivity::class.java))
-        }
-
-
-
-        loadSchedule()
-        setupRealtimeScheduleListener()
-        setupNavBarAndInsets()
-        setupNavClicks()
-        ensureUserDocExists()
-
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                android.util.Log.e("FCM-DEBUG", "Fetching FCM token failed", task.exception)
-                return@addOnCompleteListener
-            }
-            val token = task.result
-            android.util.Log.d("FCM-DEBUG", "FORCED token: $token")
-
-            // Register with backend immediately (uses ApiRepository)
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val repo = com.varsitycollege.st10303285.colligoapp.repository.ApiRepository()
-                    val resp = repo.registerFcmToken(token)
-                    android.util.Log.d("FCM-DEBUG", "registerFcmToken response: ${resp?.code() ?: resp}")
-                } catch (e: Exception) {
-                    android.util.Log.e("FCM-DEBUG", "registerFcmToken failed", e)
+        if (user != null) {
+            val name = when {
+                !user.displayName.isNullOrBlank() -> user.displayName!!.split(" ").first()
+                !user.email.isNullOrBlank() -> {
+                    val username = user.email!!.substringBefore("@")
+                    username.replace(".", " ")
+                        .split(" ")
+                        .joinToString(" ") { it.capitalize() }
                 }
+                else -> "Student"
             }
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1001)
-            }
-        }
-
-
-    }
-
-
-    fun ensureUserDocExists() {
-        val user = Firebase.auth.currentUser ?: return
-        val uid = user.uid
-        val db = FirebaseFirestore.getInstance()
-        val ref = db.collection("users").document(uid)
-
-        // read once; if missing create minimal doc
-        ref.get().addOnSuccessListener { snap ->
-            if (!snap.exists()) {
-                // build a minimal profile from available info
-                val doc = hashMapOf<String, Any?>(
-                    "createdAt" to com.google.firebase.Timestamp.now(),
-                    "email" to (user.email ?: ""),
-                    "fullName" to (user.displayName ?: ""),
-                    "photoUrl" to (user.photoUrl?.toString() ?: "")
-                )
-                // set with merge in case other fields exist
-                ref.set(doc, SetOptions.merge())
-                    .addOnSuccessListener { android.util.Log.d("USER-INIT", "User doc created for $uid") }
-                    .addOnFailureListener { e -> android.util.Log.e("USER-INIT", "Failed to create user doc", e) }
-            } else {
-                android.util.Log.d("USER-INIT", "User doc exists for $uid")
-            }
-        }.addOnFailureListener { e ->
-            android.util.Log.e("USER-INIT", "Error reading user doc", e)
-        }
-    }
-    fun goToHome(view: View) {
-
-        val scroll = findViewById<View?>(R.id.scrollContent)
-        scroll?.let {
-            it.scrollTo(0, 0)
+            greetingView.text = "Hi, $name!"
+        } else {
+            greetingView.text = "Welcome!"
         }
     }
 
-    private fun loadSchedule() {
-        // load schedule from Firestore
+    private fun setupFeatureCardClicks() {
+        plannerCard.setOnClickListener { startActivity(Intent(this, PlannerActivity::class.java)) }
+        lostFoundCard.setOnClickListener { startActivity(Intent(this, LostFoundActivity::class.java)) }
+        carpoolCard.setOnClickListener { startActivity(Intent(this, RidesDashboardActivity::class.java)) }
+        mapCard.setOnClickListener { startActivity(Intent(this, CampusMapActivity::class.java)) }
+    }
+
+    private fun setupSchedule() {
+        loadScheduleFromFirestore()
+
+        firestore.collection("schedule")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) return@addSnapshotListener
+
+                val lectures = snapshot?.documents?.mapNotNull {
+                    LectureItem(
+                        title = it.getString("title") ?: "Lecture",
+                        time = it.getString("time") ?: ""
+                    )
+                } ?: emptyList()
+
+                lectureAdapter.setItems(lectures)
+            }
+    }
+
+    private fun loadScheduleFromFirestore() {
         firestore.collection("schedule")
             .limit(10)
             .get()
-            .addOnSuccessListener { snap ->
-                val items = snap.documents.mapNotNull { doc ->
+            .addOnSuccessListener { documents ->
+                val list = documents.mapNotNull {
                     LectureItem(
-                        title = doc.getString("title") ?: "Lecture",
-                        time = doc.getString("time") ?: "09:00"
+                        title = it.getString("title") ?: "Subject",
+                        time = it.getString("time") ?: "--:--"
                     )
                 }
-                lecturesAdapter.setItems(items)
-            }
-            .addOnFailureListener {
-                // fallback: show sample entries
-                lecturesAdapter.setItems(
-                    listOf(
-                        LectureItem("Programming 3D", "08:00"),
-                        LectureItem("Database Systems", "10:00")
-                    )
-                )
+                lectureAdapter.setItems(list)
             }
     }
 
-    private fun setupRealtimeScheduleListener() {
-        // demonstrates real-time updates
-        firestore.collection("schedule")
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    Log.w("HomeActivity", "schedule listener error", error)
-                    return@addSnapshotListener
-                }
-                if (snapshot != null) {
-                    val items = snapshot.documents.mapNotNull { doc ->
-                        LectureItem(doc.getString("title") ?: "Lecture", doc.getString("time") ?: "")
-                    }
-                    lecturesAdapter.setItems(items)
-                }
-            }
-    }
-
-    private fun setupNavBarAndInsets() {
-        // get nav bar and icons
+    private fun setupBottomNavigation() {
         navBar = findViewById(R.id.bottomNav)
         if (navBar == null) {
-            Log.w("HomeActivity", "bottomNav view not found. Ensure include id '@+id/bottomNav' exists.")
+            Log.w("HomeActivity", "bottomNav not found")
             return
         }
 
-
-        ViewCompat.setOnApplyWindowInsetsListener(navBar!!) { v, insets ->
+        // Handle notch & gesture navigation padding
+        ViewCompat.setOnApplyWindowInsetsListener(navBar!!) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-
-            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, systemBars.bottom)
-
+            view.setPadding(0, 0, 0, systemBars.bottom)
             insets
         }
 
-        // find icons inside the nav bar
+        // Find your icons from nav_bar.xml
         iconHome = navBar!!.findViewById(R.id.iconHome)
         iconLocation = navBar!!.findViewById(R.id.iconLocation)
         iconCarpool = navBar!!.findViewById(R.id.iconCarpool)
         iconCalendar = navBar!!.findViewById(R.id.iconCalendar)
         iconLostFound = navBar!!.findViewById(R.id.iconLostFound)
-    }
 
-    private fun setupNavClicks() {
-        // navBar might be null (guard)
-        if (navBar == null) return
-
-
+        // Click listeners – same as your original code
         iconHome?.setOnClickListener {
-            // optional: scroll to top
-            val scroll = findViewById<View?>(R.id.scrollContent)
-            scroll?.scrollTo(0, 0)
-            // small feedback so user knows we're already on home
-            Toast.makeText(this, getString(R.string.home_icon_desc), Toast.LENGTH_SHORT).show()
+            findViewById<NestedScrollView>(R.id.scrollContent)?.smoothScrollTo(0, 0)
+            Toast.makeText(this, "Home", Toast.LENGTH_SHORT).show()
         }
 
         iconLocation?.setOnClickListener {
-            // launch CampusMapActivity (or Location feature)
             startActivity(Intent(this, CampusMapActivity::class.java))
         }
 
-
         iconCarpool?.setOnClickListener {
-            // launch CarpoolActivity
             startActivity(Intent(this, RidesDashboardActivity::class.java))
         }
 
         iconCalendar?.setOnClickListener {
-            // launch PlannerActivity
             startActivity(Intent(this, PlannerActivity::class.java))
         }
 
         iconLostFound?.setOnClickListener {
-            // launch LostFoundActivity
             startActivity(Intent(this, LostFoundActivity::class.java))
+        }
+    }
+
+    private fun ensureUserDocumentExists() {
+        val user = Firebase.auth.currentUser ?: return
+        val ref = firestore.collection("users").document(user.uid)
+
+        ref.get().addOnSuccessListener { doc ->
+            if (!doc.exists()) {
+                val data = hashMapOf(
+                    "email" to (user.email ?: ""),
+                    "fullName" to (user.displayName ?: ""),
+                    "photoUrl" to (user.photoUrl?.toString() ?: ""),
+                    "createdAt" to com.google.firebase.Timestamp.now()
+                )
+                ref.set(data, SetOptions.merge())
+            }
+        }
+    }
+
+    private fun registerFcmToken() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) return@addOnCompleteListener
+            val token = task.result
+            Log.d("FCM", "Token: $token")
+
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val repo = com.varsitycollege.st10303285.colligoapp.repository.ApiRepository()
+                    repo.registerFcmToken(token)
+                } catch (e: Exception) {
+                    Log.e("FCM", "Failed", e)
+                }
+            }
+        }
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1001)
+            }
         }
     }
 }
 
-//Lecture data + Adapter
-
+// Data class & clean adapter
 data class LectureItem(val title: String, val time: String)
 
-class LectureAdapter : RecyclerView.Adapter<LectureAdapter.LecVH>() {
+class LectureAdapter : RecyclerView.Adapter<LectureAdapter.ViewHolder>() {
     private val items = mutableListOf<LectureItem>()
-    fun setItems(new: List<LectureItem>) {
+
+    fun setItems(newItems: List<LectureItem>) {
         items.clear()
-        items.addAll(new)
+        items.addAll(newItems)
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): LecVH {
-        val v = android.view.LayoutInflater.from(parent.context)
+    override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): ViewHolder {
+        val view = android.view.LayoutInflater.from(parent.context)
             .inflate(android.R.layout.simple_list_item_2, parent, false)
-        return LecVH(v)
+        return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: LecVH, position: Int) {
-        val it = items[position]
-        holder.title.text = it.title
-        holder.sub.text = it.time
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.title.text = items[position].title
+        holder.time.text = items[position].time
     }
 
-    override fun getItemCount(): Int = items.size
+    override fun getItemCount() = items.size
 
-    class LecVH(view: android.view.View) : RecyclerView.ViewHolder(view) {
-        val title: android.widget.TextView = view.findViewById(android.R.id.text1)
-        val sub: android.widget.TextView = view.findViewById(android.R.id.text2)
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val title: TextView = view.findViewById(android.R.id.text1)
+        val time: TextView = view.findViewById(android.R.id.text2)
     }
 }

@@ -1,113 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
-    android:padding="16dp"
     tools:context=".RegisterActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:padding="32dp"
         android:gravity="center">
 
         <!-- Logo -->
         <ImageView
             android:id="@+id/logoImage"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
+            android:layout_width="110dp"
+            android:layout_height="110dp"
             android:src="@drawable/colligo_logo_maroon"
-            android:layout_marginTop="50dp"
-            android:contentDescription="@string/app_name" />
+            android:contentDescription="@string/app_name"
+            android:layout_marginTop="40dp"
+            app:tint="@null" />
 
-        <!-- Title -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Create Account"
-            android:textSize="24sp"
+            android:textSize="32sp"
             android:textStyle="bold"
-            android:layout_marginTop="24dp"
-            android:textColor="@color/black" />
+            android:textColor="@color/black"
+            android:layout_marginTop="32dp"
+            android:fontFamily="sans-serif-medium" />
 
         <!-- Full Name -->
-        <EditText
-            android:id="@+id/fullNameEditText"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="30dp"
-            android:hint="Full Name"
-            android:background="@drawable/edittext_bg"
-            android:paddingHorizontal="16dp"
-            android:inputType="textPersonName"
-            android:maxLines="1"
-            android:textColorHint="@color/gray" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            app:hintTextColor="@color/colligo_maroon"
+            app:boxStrokeColor="@color/colligo_maroon"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-  <!-- University -->
-        <EditText
-            android:id="@+id/etUniversity"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/fullNameEditText"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:hint="Full Name"
+                android:inputType="textPersonName" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- University -->
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="@string/university"
-            android:background="@drawable/edittext_bg"
-            android:paddingHorizontal="16dp"
-            android:inputType="text"
-            android:maxLines="1"
-            android:textColorHint="@color/gray" />
+            app:hintTextColor="@color/colligo_maroon"
+            app:boxStrokeColor="@color/colligo_maroon"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etUniversity"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:hint="University" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Email -->
-        <EditText
-            android:id="@+id/emailEditText"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Email"
-            android:background="@drawable/edittext_bg"
-            android:paddingHorizontal="16dp"
-            android:inputType="textEmailAddress"
-            android:maxLines="1"
-            android:textColorHint="@color/gray" />
+            app:startIconDrawable="@drawable/ic_email"
+            app:startIconTint="@color/colligo_maroon"
+            app:hintTextColor="@color/colligo_maroon"
+            app:boxStrokeColor="@color/colligo_maroon"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/emailEditText"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:hint="Email"
+                android:inputType="textEmailAddress" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Password -->
-        <EditText
-            android:id="@+id/passwordEditText"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Password"
-            android:background="@drawable/edittext_bg"
-            android:paddingHorizontal="16dp"
-            android:inputType="textPassword"
-            android:maxLines="1"
-            android:textColorHint="@color/gray" />
+            app:startIconDrawable="@drawable/ic_lock"
+            app:startIconTint="@color/colligo_maroon"
+            app:hintTextColor="@color/colligo_maroon"
+            app:boxStrokeColor="@color/colligo_maroon"
+            app:endIconMode="password_toggle"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/passwordEditText"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:hint="Password"
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Confirm Password -->
-        <EditText
-            android:id="@+id/confirmPasswordEditText"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Confirm Password"
-            android:background="@drawable/edittext_bg"
-            android:paddingHorizontal="16dp"
-            android:inputType="textPassword"
-            android:maxLines="1"
-            android:textColorHint="@color/gray" />
+            app:startIconDrawable="@drawable/ic_lock"
+            app:startIconTint="@color/colligo_maroon"
+            app:hintTextColor="@color/colligo_maroon"
+            app:boxStrokeColor="@color/colligo_maroon"
+            app:endIconMode="password_toggle"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/confirmPasswordEditText"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:hint="Confirm Password"
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Register Button -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRegister"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="24dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="32dp"
             android:text="Register"
-            android:backgroundTint="@color/colligo_maroon"
-            android:textColor="@color/white"
-            android:fontFamily="@font/angkor"
-            android:textAllCaps="false" />
+            android:textSize="16sp"
+            android:textAllCaps="false"
+            app:cornerRadius="14dp"
+            app:backgroundTint="@color/colligo_maroon" />
 
         <!-- Login Redirect -->
         <TextView
@@ -115,11 +144,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/already_have_an_account_login"
-            android:textColor="@color/black"
-            android:textSize="18sp"
-            android:layout_marginTop="16dp"
-            android:gravity="center"
-            android:clickable="true"
+            android:textSize="15sp"
+            android:textColor="@color/colligo_maroon"
+            android:layout_marginTop="20dp"
             android:padding="8dp" />
 
         <!-- Divider -->
@@ -127,21 +154,24 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/light_gray"
-            android:layout_marginTop="24dp" />
+            android:layout_marginVertical="32dp" />
 
-        <!-- Google Sign-Up Button -->
-        <Button
+        <!-- Google Sign Up -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnGoogleSignUp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="24dp"
+            android:layout_height="56dp"
             android:text="Continue with Google"
             android:textColor="@color/black"
-            android:background="@drawable/google_btn_bg"
-            android:drawableStart="@drawable/ic_google"
-            android:drawablePadding="10dp"
-            android:fontFamily="@font/angkor"
-            android:textAllCaps="false" />
+            app:icon="@drawable/ic_google"
+            app:iconGravity="start"
+            app:iconPadding="16dp"
+            app:strokeColor="#DADCE0"
+            app:cornerRadius="14dp"
+            android:backgroundTint="@android:color/white" />
+
+        <View android:layout_width="match_parent" android:layout_height="60dp" />
 
     </LinearLayout>
 </ScrollView>

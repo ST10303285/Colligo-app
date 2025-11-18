@@ -1,293 +1,360 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F8F9FC"
     tools:context=".HomeActivity">
 
-    <ScrollView
+    <!-- Main scrollable content -->
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/bottomNav"
         android:fillViewport="true"
-        android:background="@color/white">
+        android:clipToPadding="false"
+        android:overScrollMode="never">
 
         <LinearLayout
             android:id="@+id/main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="24dp">
 
-            <!-- Top Bar -->
-            <RelativeLayout
+            <!-- Glass-style Top Bar -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:padding="12dp">
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="16dp"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="12dp"
+                app:cardBackgroundColor="#88FFFFFF">
 
-                <ImageView
-                    android:id="@+id/btnSettings"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:src="@drawable/ic_settings"
-                    android:layout_alignParentStart="true"
-                    android:contentDescription="@string/settings_icon_desc" />
-
-                <TextView
-                    android:id="@+id/tvGreeting"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/hi_wadiha_boat"
-                    android:textStyle="bold"
-                    android:textColor="@color/black"
-                    android:textSize="18sp"
-                    android:layout_centerHorizontal="true" />
+                    android:orientation="horizontal"
+                    android:padding="20dp"
+                    android:gravity="center_vertical">
 
-                <ImageView
-                    android:id="@+id/btnSearch"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:src="@drawable/ic_search"
-                    android:layout_alignParentEnd="true"
-                    android:contentDescription="@string/search_icon_desc" />
-            </RelativeLayout>
+                    <ImageView
+                        android:id="@+id/btnSettings"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_settings"
+                        android:contentDescription="Settings"
+                        app:tint="@color/colligo_maroon" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <TextView
+                            android:id="@+id/tvGreeting"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Hi, Student!"
+                            android:textSize="26sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/colligo_maroon" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Welcome back"
+                            android:textSize="16sp"
+                            android:textColor="#666666"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/btnSearch"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_search"
+                        android:contentDescription="Search"
+                        app:tint="@color/colligo_maroon" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Campus Banner -->
-            <FrameLayout
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="180dp"
-                android:layout_marginTop="8dp">
+                android:layout_height="200dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="20dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="10dp">
 
                 <ImageView
                     android:id="@+id/campusImage"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:contentDescription="@string/campus_image"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/campus_image" />
+                    android:src="@drawable/campus_image"
+                    android:contentDescription="Campus" />
 
                 <TextView
                     android:id="@+id/bannerText"
-                    android:layout_width="179dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end|center_vertical"
-                    android:background="#80000000"
-                    android:padding="12dp"
-                    android:text="@string/creative_thinking_critical_thinking_newworldthinking"
+                    android:layout_gravity="bottom|end"
+                    android:background="#AA000000"
+                    android:padding="16dp"
+                    android:text="Creative Thinking • Critical Thinking • New World Thinking"
                     android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </FrameLayout>
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:layout_margin="16dp" />
+            </com.google.android.material.card.MaterialCardView>
 
-            <!-- Student Nav Heading -->
+            <!-- Student Hub Title -->
             <TextView
                 android:id="@+id/studentNavTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/student_nav_title"
+                android:text="Student Hub"
+                android:textSize="32sp"
                 android:textStyle="bold"
-                android:textSize="28sp"
                 android:textColor="@color/colligo_maroon"
                 android:gravity="center"
-                android:layout_marginTop="20dp" />
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="16dp" />
 
-            <!-- Student Nav Grid (2x2) -->
+            <!-- 2x2 Feature Grid -->
             <GridLayout
                 android:id="@+id/navGrid"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:columnCount="2"
                 android:rowCount="2"
-                android:layout_marginTop="16dp"
-                android:paddingHorizontal="16dp"
-                android:columnOrderPreserved="false">
+                android:paddingHorizontal="16dp">
 
-                <!-- Planner Card -->
-                <LinearLayout
+                <!-- Planner -->
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/plannerCard"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
-                    android:orientation="vertical"
-                    android:layout_margin="8dp"
-                    android:background="@drawable/card_bg">
+                    android:layout_margin="10dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="10dp">
 
-                    <ImageView
-                        android:id="@+id/plannerImg"
-                        android:layout_width="match_parent"
-                        android:layout_height="100dp"
-                        android:contentDescription="@string/planner_image"
-                        android:src="@drawable/planner_img"
-                        android:scaleType="centerCrop" />
-
-                    <TextView
-                        android:id="@+id/plannerTitle"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="PLANNER"
-                        android:textStyle="bold"
-                        android:padding="8dp"
-                        android:textColor="@color/white"
-                        android:background="@color/colligo_maroon" />
-                </LinearLayout>
+                        android:orientation="vertical">
 
-                <!-- Lost and Found Card -->
-                <LinearLayout
+                        <ImageView
+                            android:id="@+id/plannerImg"
+                            android:layout_width="match_parent"
+                            android:layout_height="120dp"
+                            android:src="@drawable/planner_img"
+                            android:scaleType="centerCrop" />
+
+                        <TextView
+                            android:id="@+id/plannerTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="PLANNER"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/white"
+                            android:background="@color/colligo_maroon"
+                            android:padding="12dp"
+                            android:gravity="center" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Lost & Found -->
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/lostFoundCard"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
-                    android:orientation="vertical"
-                    android:layout_margin="8dp"
-                    android:background="@drawable/card_bg">
+                    android:layout_margin="10dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="10dp">
 
-                    <ImageView
-                        android:id="@+id/lostFoundImg"
-                        android:layout_width="match_parent"
-                        android:layout_height="100dp"
-                        android:contentDescription="@string/lost_found_image"
-                        android:src="@drawable/lostfound_img"
-                        android:scaleType="centerCrop" />
-
-                    <TextView
-                        android:id="@+id/lostFoundTitle"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="LOST AND FOUND"
-                        android:textStyle="bold"
-                        android:padding="8dp"
-                        android:textColor="@color/white"
-                        android:background="@color/colligo_maroon" />
-                </LinearLayout>
+                        android:orientation="vertical">
 
-                <!-- Carpooling Card -->
-                <LinearLayout
+                        <ImageView
+                            android:id="@+id/lostFoundImg"
+                            android:layout_width="match_parent"
+                            android:layout_height="120dp"
+                            android:src="@drawable/lostfound_img"
+                            android:scaleType="centerCrop" />
+
+                        <TextView
+                            android:id="@+id/lostFoundTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="LOST &amp; FOUND"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/white"
+                            android:background="@color/colligo_maroon"
+                            android:padding="12dp"
+                            android:gravity="center" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Carpool -->
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/carpoolCard"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
-                    android:orientation="vertical"
-                    android:layout_margin="8dp"
-                    android:background="@drawable/card_bg">
+                    android:layout_margin="10dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="10dp">
 
-                    <ImageView
-                        android:id="@+id/carpoolImg"
-                        android:layout_width="match_parent"
-                        android:layout_height="100dp"
-                        android:contentDescription="@string/carpool_image"
-                        android:src="@drawable/carpool_img"
-                        android:scaleType="centerCrop" />
-
-                    <TextView
-                        android:id="@+id/carpoolTitle"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="CARPOOL"
-                        android:textStyle="bold"
-                        android:padding="8dp"
-                        android:textColor="@color/white"
-                        android:background="@color/colligo_maroon" />
-                </LinearLayout>
+                        android:orientation="vertical">
 
-                <!-- Campus Map Card -->
-                <LinearLayout
+                        <ImageView
+                            android:id="@+id/carpoolImg"
+                            android:layout_width="match_parent"
+                            android:layout_height="120dp"
+                            android:src="@drawable/carpool_img"
+                            android:scaleType="centerCrop" />
+
+                        <TextView
+                            android:id="@+id/carpoolTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="CARPOOL"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/white"
+                            android:background="@color/colligo_maroon"
+                            android:padding="12dp"
+                            android:gravity="center" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Campus Map -->
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/mapCard"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
-                    android:orientation="vertical"
-                    android:layout_margin="8dp"
-                    android:background="@drawable/card_bg">
+                    android:layout_margin="10dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="10dp">
 
-                    <ImageView
-                        android:id="@+id/mapImg"
-                        android:layout_width="match_parent"
-                        android:layout_height="100dp"
-                        android:contentDescription="@string/map_image"
-                        android:src="@drawable/map_img"
-                        android:scaleType="centerCrop" />
-
-                    <TextView
-                        android:id="@+id/mapTitle"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="CAMPUS MAP"
-                        android:textStyle="bold"
-                        android:padding="8dp"
-                        android:textColor="@color/white"
-                        android:background="@color/colligo_maroon" />
-                </LinearLayout>
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:id="@+id/mapImg"
+                            android:layout_width="match_parent"
+                            android:layout_height="120dp"
+                            android:src="@drawable/map_img"
+                            android:scaleType="centerCrop" />
+
+                        <TextView
+                            android:id="@+id/mapTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="CAMPUS MAP"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/white"
+                            android:background="@color/colligo_maroon"
+                            android:padding="12dp"
+                            android:gravity="center" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </GridLayout>
 
-            <!-- Schedule Section -->
-            <LinearLayout
+            <!-- Today's Schedule -->
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/scheduleSection"
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_margin="16dp"
-                android:background="@drawable/schedule_bg"
-                android:orientation="horizontal"
-                android:padding="12dp">
+                android:layout_height="200dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="12dp"
+                app:cardBackgroundColor="@color/colligo_maroon">
 
-                <!-- Left: RecyclerView for lectures -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/lectureRecycler"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:overScrollMode="never" />
-
-                <!-- Right: Date Info -->
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="4dp">
+                    android:orientation="horizontal"
+                    android:padding="20dp">
 
-                    <TextView
-                        android:id="@+id/dayText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="DAY"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/lectureRecycler"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:paddingEnd="16dp"
+                        android:overScrollMode="never" />
 
-                    <TextView
-                        android:id="@+id/monthText"
+                    <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="MONTH"
-                        android:textColor="@color/white"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:gravity="center">
 
-                    <TextView
-                        android:id="@+id/dateText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="DATE"
-                        android:textColor="@color/white"
-                        android:textSize="24sp"
-                        android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/dayText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="MON"
+                            android:textColor="@color/white"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/monthText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="NOV"
+                            android:textColor="@color/white"
+                            android:textSize="28sp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="4dp" />
+
+                        <TextView
+                            android:id="@+id/dateText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="18"
+                            android:textColor="@color/white"
+                            android:textSize="52sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
-    <!-- Reusable bottom nav include -->
+    <!-- Bottom Navigation Bar -->
     <include
         android:id="@+id/bottomNav"
         layout="@layout/nav_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true" />
+
 </RelativeLayout>
