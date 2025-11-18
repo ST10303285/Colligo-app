@@ -18,7 +18,7 @@ class RequestRideActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_request_ride_results) // reuse; shows list area
+        setContentView(R.layout.activity_request_ride_results)
 
         rideId = intent.getStringExtra("rideId")
 

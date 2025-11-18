@@ -27,13 +27,13 @@ class RidesDashboardActivity : AppCompatActivity() {
             startActivity(Intent(this, RequestRideSearchActivity::class.java))
         }
 
-        // Make both the coloured area and the text clickable
+        // Set click listeners
         areaOffer.setOnClickListener(goToOffer)
         tvOffer.setOnClickListener(goToOffer)
 
         areaRequest.setOnClickListener(goToRequest)
         tvRequest.setOnClickListener(goToRequest)
 
-        // (Optional) hook up top-bar icons or bottom nav here if you want
+
     }
 }
